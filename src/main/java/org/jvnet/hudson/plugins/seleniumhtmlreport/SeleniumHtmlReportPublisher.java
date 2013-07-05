@@ -32,7 +32,7 @@ import org.kohsuke.stapler.QueryParameter;
 public class SeleniumHtmlReportPublisher extends Recorder implements Serializable {
 
     private static final long serialVersionUID = 28042011L;
-    
+
     private String SELENIUM_REPORTS_TARGET = "seleniumReports";
 
     private final String testResultsDir;
@@ -40,7 +40,7 @@ public class SeleniumHtmlReportPublisher extends Recorder implements Serializabl
     private boolean failureIfExceptionOnParsingResultFiles = true;
 
     /**
-     * 
+     *
      * @param testResults
      * @stapler-constructor
      */
@@ -85,12 +85,7 @@ public class SeleniumHtmlReportPublisher extends Recorder implements Serializabl
         ResultTuple resultTpl = createResults(build, listener);
         SeleniumHtmlReportAction action = new SeleniumHtmlReportAction(build, listener, resultTpl.results, getSeleniumReportsDir(build));
         build.getActions().add(action);
-        if (resultTpl.exceptionWhileParsing && this.failureIfExceptionOnParsingResultFiles) {
-            listener.getLogger().println("Set result to FAILURE");
-            build.setResult(Result.FAILURE);
-        } else {
-            calculateResultState(build, resultTpl.results, listener);
-        }
+
         return true;
     }
 
@@ -119,23 +114,6 @@ public class SeleniumHtmlReportPublisher extends Recorder implements Serializabl
         return resultTpl;
     }
 
-    private void calculateResultState(AbstractBuild<?,?> build, List<TestResult> results, BuildListener listener) {
-        if (Result.ABORTED == build.getResult() || Result.FAILURE == build.getResult()) {
-            return;
-        }
-        for (TestResult result : results) {
-            if (result.getNumCommandFailures() > 0) {
-                listener.getLogger().println("Set result to UNSTABLE");
-                build.setResult(Result.UNSTABLE);
-            }
-            if (result.getNumCommandErrors() > 0) {
-                listener.getLogger().println("Set result to FAILURE");
-                build.setResult(Result.FAILURE);
-                break;
-            }
-        }
-    }
-    
     /**
      * Gets the directory where the latest selenium reports are stored for the
      * given build.
